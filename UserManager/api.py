@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from .email import send_mail
-
+from .models import *
+import random
+import datetime
+import pytz
 
 # class RegistrationAPI(APIView):
 #     authentication_classes = [JWTAuthentication]
@@ -81,14 +84,74 @@ class LoginOTP(APIView):
     def post(self, request):
         '''
         {
-            'email': 'ahx.agent007@gmail.com'
+            "email": "ahx.agent007@gmail.com"
         }
         '''
 
         email = request.data['email']
 
-        message = 'Your Quote App OTP is {0}'.format(123456)
+        rand_otp = random.randint(100000, 999999)
+
+        try:
+            otp_obj = otp.objects.get(email=email)
+            otp_obj.otp = rand_otp
+            otp_obj.created_date = datetime.datetime.now(pytz.timezone('Asia/Dhaka'))
+            otp_obj.save()
+
+            data = {
+                'msg': 'OTP updated for {0}'.format(email)
+            }
+        except:
+            otp.objects.create(email=email, otp=rand_otp)
+
+            data = {
+                'msg': 'OTP created for {0}'.format(email)
+            }
+
+        message = 'Your Quote App OTP is {0}'.format(rand_otp)
         send_mail(message, email)
 
-        data = {}
+        return Response(data, status=status.HTTP_200_OK)
+
+class LoginOTPVerification(APIView):
+
+    def post(self, request):
+        '''
+        {
+            "email": "ahx.agent007@gmail.com",
+            "otp": "123456",
+            "phone": "One PLus"
+        }
+        '''
+
+        email = request.data['email']
+        user_otp = request.data['otp']
+
+        try:
+            otp_obj = otp.objects.get(email=email)
+
+            if otp_obj.otp == user_otp:
+                #login success
+                try:
+                    user_obj = user.objects.get(email=email)
+                except:
+                    user_obj = user.objects.create(email=email)
+                refresh = RefreshToken.for_user(user_obj)
+                data = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token)
+                }
+                #delete OTP
+            else:
+                #login failed
+                data = {
+                    'msg': 'Wrong OTP'
+                }
+
+        except Exception as e:
+            data = {
+                'msg': 'Try Sending OTP First',
+                'error': str(e)
+            }
+
         return Response(data, status=status.HTTP_200_OK)
