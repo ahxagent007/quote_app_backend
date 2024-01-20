@@ -86,6 +86,7 @@ class LoginOTP(APIView):
         '''
 
         email = request.data['email']
+
         message = 'Your Quote App OTP is {0}'.format(123456)
         send_mail(message, email)
 

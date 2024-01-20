@@ -1,8 +1,11 @@
+import os
 import smtplib
 
 def send_mail(message, receiver_email_id):
-    sender_email_id = 'alphacuetechnologies@gmail.com'
-    sender_email_id_password = 'AlphaCueTechXiAn2023'
+    sender_email_id = os.getenv('sender_email_id')
+    sender_email_id_password = os.getenv('sender_email_id_password')
+
+    print(sender_email_id, sender_email_id_password)
 
     # creates SMTP session
     s = smtplib.SMTP('smtp.gmail.com', 587)
