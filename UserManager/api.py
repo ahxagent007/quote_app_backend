@@ -126,6 +126,7 @@ class LoginOTPVerification(APIView):
 
         email = request.data['email']
         user_otp = request.data['otp']
+        phone = request.data['phone']
 
         try:
             otp_obj = otp.objects.get(email=email)
@@ -134,8 +135,12 @@ class LoginOTPVerification(APIView):
                 #login success
                 try:
                     user_obj = user.objects.get(email=email)
+
+                    if not user_obj.phone_model == phone:
+                        message = "You have changed you mobile device for Quote App, if this login isn't by yourself please contact the admin."
+                        send_mail(email, message)
                 except:
-                    user_obj = user.objects.create(email=email)
+                    user_obj = user.objects.create(email=email, phone_model=phone)
                 refresh = RefreshToken.for_user(user_obj)
                 data = {
                     'refresh': str(refresh),
