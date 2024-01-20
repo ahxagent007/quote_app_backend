@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     #path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('user', include(('UserManager.urls', 'UserManager'), namespace='UserManager')),
-    path('quote', include(('Quote.urls', 'Quote'), namespace='Quote')),
-    path('magic', include(('Magic.urls', 'Magic'), namespace='Magic')),
+    path('user/', include(('UserManager.urls', 'UserManager'), namespace='UserManager')),
+    path('quote/', include(('Quote.urls', 'Quote'), namespace='Quote')),
+    path('magic/', include(('Magic.urls', 'Magic'), namespace='Magic')),
 ]
