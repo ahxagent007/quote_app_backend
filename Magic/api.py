@@ -74,8 +74,10 @@ class ChatAPI(APIView):
         user_id = request.user.id
 
         chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=id) & Q(Q(sender=user_id) | Q(receiver=user_id))), many=True).data
-
-        return Response(chats, status=status.HTTP_200_OK)
+        data = {
+            'chats': chats
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, id):
         '''
@@ -94,6 +96,30 @@ class ChatAPI(APIView):
         serializer.save()
 
         data = serializer.data
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def delete(self, request, id):
+        chats_obj = chat.objects.filter(chat_room_id=id)
+        chats_obj.delete()
+
+        data = {
+            'msg': 'Messages Deleted for both'
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class ChatFastAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, id, last_chat_id):
+        user_id = request.user.id
+
+        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=id) & Q(Q(sender=user_id) | Q(receiver=user_id)) & Q(id__gt=last_chat_id)), many=True).data
+
+        data = {
+            'chats': chats
+        }
 
         return Response(data, status=status.HTTP_200_OK)
 
