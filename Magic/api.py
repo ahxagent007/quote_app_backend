@@ -97,8 +97,23 @@ class ChatAPI(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
+class ChatListAPI(APIView):
+    authentication_classes = [JWTAuthentication]
 
+    def get(self, request):
+        user_id = request.user.id
 
+        chats_room_ids = chat.objects.filter(Q(sender=user_id) | Q(receiver=user_id)).values('chat_room_id').distinct()
+
+        rooms = []
+
+        for r in chats_room_ids:
+            rooms.append(r['chat_room_id'])
+
+        data = {
+            'chat_rooms': rooms
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 def md5_hash(txt):
     return hashlib.md5(txt.encode()).hexdigest()
