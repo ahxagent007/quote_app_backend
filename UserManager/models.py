@@ -4,7 +4,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser
 
 class CustomUser(BaseUserManager):
-    def create_superuser(self, phone, password, **other_fields):
+    def create_superuser(self, password, **other_fields):
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_active', True)
@@ -14,14 +14,11 @@ class CustomUser(BaseUserManager):
             raise ValueError('Superuser must be assigned to is_superuser=True')
 
         other_fields.setdefault('role', 'ADMIN')
-        return self.create_user(phone, password, **other_fields)
+        return self.create_user(password, **other_fields)
 
-    def create_user(self, phone, password=None, **other_fields):
-        if not phone:
-            raise ValueError(gettext_lazy('Email is required'))
+    def create_user(self, password=None, **other_fields):
+
         other_fields.setdefault('is_active', True)
-        other_fields.setdefault('role', 'CUSTOMER')
-        user = self.model(phone=phone, **other_fields)
         user.set_password(password)
         user.save()
         return user
