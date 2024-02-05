@@ -128,10 +128,11 @@ class LoginOTPVerification(APIView):
         user_otp = request.data['otp']
         phone = request.data['phone']
 
+        e1 = "no error"
         try:
             otp_obj = otp.objects.get(email=email)
-
             if otp_obj.otp == user_otp:
+
                 #login success
                 try:
                     user_obj = user.objects.get(email=email)
