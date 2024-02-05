@@ -139,7 +139,7 @@ class LoginOTPVerification(APIView):
 
                     if not user_obj.phone_model == phone:
                         message = "You have changed you mobile device for Quote App, if this login isn't by yourself please contact the admin."
-                        send_mail(email, message)
+                        send_mail(message, email)
                 except Exception as e:
                     errors.append(str(e))
                     user_obj = user.objects.create(email=email, phone_model=phone)
