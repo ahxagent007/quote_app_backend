@@ -139,8 +139,9 @@ class LoginOTPVerification(APIView):
                     if not user_obj.phone_model == phone:
                         message = "You have changed you mobile device for Quote App, if this login isn't by yourself please contact the admin."
                         send_mail(email, message)
-                except:
+                except Exception as e1:
                     user_obj = user.objects.create(email=email, phone_model=phone)
+
                 refresh = RefreshToken.for_user(user_obj)
                 data = {
                     'refresh': str(refresh),
@@ -153,10 +154,11 @@ class LoginOTPVerification(APIView):
                     'msg': 'Wrong OTP'
                 }
 
-        except Exception as e:
+        except Exception as e2:
             data = {
                 'msg': 'Try Sending OTP First',
-                'error': str(e)
+                'error1': str(e1),
+                'error2': str(e2)
             }
 
         return Response(data, status=status.HTTP_200_OK)
