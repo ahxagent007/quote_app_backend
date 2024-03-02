@@ -195,4 +195,30 @@ class ChartStart(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
+class DeleteChat(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request, room_id):
+
+        user_id = request.user.id
+        chat_user_ids = chat.objects.filter(Q(chat_room_id=room_id) & (Q(sender=user_id) | Q(receiver=user_id))).values('sender', 'receiver').distinct()
+
+        chat_user_ids_uniq = []
+
+        for ch in chat_user_ids:
+            chat_user_ids_uniq.append(ch['sender'])
+            chat_user_ids_uniq.append(ch['receiver'])
+
+        chat_user_ids_uniq = list(set(chat_user_ids_uniq))
+
+        data = {
+
+        }
+        if user_id in chat_user_ids_uniq:
+            #delete
+            chat.objects.filter(chat_room_id=room_id).delete()
+            data['msg'] = 'Delete Completed'
+        else:
+            data['msg'] = 'Not Deleted'
+        return Response(data, status=status.HTTP_200_OK)
 
