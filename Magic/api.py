@@ -131,18 +131,20 @@ class ChatListAPI(APIView):
     def get(self, request):
         user_id = request.user.id
 
-        chats_room_ids = chat.objects.filter(Q(sender=user_id) | Q(receiver=user_id)).values('chat_room_id', 'sender', 'receiver').distinct()
-
+        chats_room_ids = chat.objects.filter(Q(sender=user_id) | Q(receiver=user_id)).values('chat_room_id').distinct()
+        print(chats_room_ids)
         rooms = []
 
-        for r in chats_room_ids:
-            if not user_id == r['sender']:
-                chat_user = UserSerializer(user.objects.get(id=r['sender']), many=False).data
+        for id in chats_room_ids:
+            r = chat.objects.filter(chat_room_id=id['chat_room_id']).first()
+
+            if not user_id == r.sender:
+                chat_user = UserSerializer(user.objects.get(id=r.sender), many=False).data
             else:
-                chat_user = UserSerializer(user.objects.get(id=r['receiver']), many=False).data,
+                chat_user = UserSerializer(user.objects.get(id=r.receiver), many=False).data,
 
             d = {
-                'room_id': r['chat_room_id'],
+                'room_id': r.chat_room_id,
                 'chat_user': chat_user,
             }
             rooms.append(d)
