@@ -8,7 +8,10 @@ import hashlib
 from django.db.models import Q
 from UserManager.models import user
 from UserManager.serializers import UserSerializer
+import time
 
+def current_milli_time():
+    return round(time.time() * 1000)
 
 class VerificationAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -185,13 +188,10 @@ class ChartStart(APIView):
                             receiver=receiver.id, chat_room_id=current_milis_str)
 
         data = {
-            'msg': 'Success'
+            'msg': 'Success',
+            'room_id': current_milis_str
         }
 
         return Response(data, status=status.HTTP_200_OK)
 
 
-import time
-
-def current_milli_time():
-    return round(time.time() * 1000)
