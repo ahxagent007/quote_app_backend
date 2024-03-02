@@ -144,7 +144,7 @@ class ChatListAPI(APIView):
             if not user_id == r.sender:
                 chat_user = UserSerializer(user.objects.get(id=r.sender), many=False).data
             else:
-                chat_user = UserSerializer(user.objects.get(id=r.receiver), many=False).data,
+                chat_user = UserSerializer(user.objects.get(id=r.receiver), many=False).data
 
             d = {
                 'room_id': r.chat_room_id,
