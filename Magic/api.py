@@ -160,9 +160,36 @@ class ChartStart(APIView):
 
     def post(self, request):
 
+        '''
+        {
+            "email" : "asd@asd.com"
+        }
+        '''
+
+        try:
+            receiver = user.objects.get(email=request.data['email'])
+
+        except:
+            data = {
+                'msg': 'User Not Found'
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        current_milis_str = str(current_milli_time())
+
+        #start Chat
+        chat.objects.create(message='Chat Started', sender=request.user.id,
+                            receiver=receiver.id, chat_room_id=current_milis_str)
 
         data = {
             'msg': 'Success'
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+import time
+
+def current_milli_time():
+    return round(time.time() * 1000)
