@@ -6,6 +6,8 @@ from .serializers import ChatSerializer, VerficationSerializer
 from .models import chat, verification
 import hashlib
 from django.db.models import Q
+from UserManager.models import user
+from UserManager.serializers import UserSerializer
 
 
 class VerificationAPI(APIView):
@@ -129,12 +131,17 @@ class ChatListAPI(APIView):
     def get(self, request):
         user_id = request.user.id
 
-        chats_room_ids = chat.objects.filter(Q(sender=user_id) | Q(receiver=user_id)).values('chat_room_id').distinct()
+        chats_room_ids = chat.objects.filter(Q(sender=user_id) | Q(receiver=user_id)).values('chat_room_id', 'sender', 'receiver').distinct()
 
         rooms = []
 
         for r in chats_room_ids:
-            rooms.append(r['chat_room_id'])
+            d = {
+                'room_id': r['chat_room_id'],
+                'user1': UserSerializer(user.objects.get(id=r['sender']), many=False).data,
+                'user2': UserSerializer(user.objects.get(id=r['receiver']), many=False).data,
+            }
+            rooms.append(d)
 
         data = {
             'chat_rooms': rooms
@@ -143,3 +150,15 @@ class ChatListAPI(APIView):
 
 def md5_hash(txt):
     return hashlib.md5(txt.encode()).hexdigest()
+
+class ChartStart(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+
+
+        data = {
+            'msg': 'Success'
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
