@@ -174,9 +174,10 @@ class ChartStart(APIView):
         try:
             receiver = user.objects.get(email=request.data['email'])
 
-        except:
+        except Exception as e:
             data = {
-                'msg': 'User Not Found'
+                'msg': 'User Not Found',
+                'error': str(e)
             }
 
             return Response(data, status=status.HTTP_200_OK)
