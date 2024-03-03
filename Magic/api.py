@@ -75,16 +75,16 @@ class VerificationCreateAPI(APIView):
 class ChatAPI(APIView):
     authentication_classes = [JWTAuthentication]
 
-    def get(self, request, id):
+    def get(self, request, room_id):
         user_id = request.user.id
 
-        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=id) & Q(Q(sender=user_id) | Q(receiver=user_id))), many=True).data
+        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id))), many=True).data
         data = {
             'chats': chats
         }
         return Response(data, status=status.HTTP_200_OK)
 
-    def post(self, request, id):
+    def post(self, request, room_id):
         '''
         {
             "message": "asdasdasdasd asd asd asd ",
@@ -94,7 +94,7 @@ class ChatAPI(APIView):
 
         json_data = request.data
         json_data['sender'] = request.user.id
-        json_data['chat_room_id'] = id
+        json_data['chat_room_id'] = room_id
 
         serializer = ChatSerializer(data=json_data, many=False)
         serializer.is_valid(raise_exception=True)
@@ -104,8 +104,8 @@ class ChatAPI(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def delete(self, request, id):
-        chats_obj = chat.objects.filter(chat_room_id=id)
+    def delete(self, request, room_id):
+        chats_obj = chat.objects.filter(chat_room_id=room_id)
         chats_obj.delete()
 
         data = {
@@ -117,10 +117,10 @@ class ChatAPI(APIView):
 class ChatFastAPI(APIView):
     authentication_classes = [JWTAuthentication]
 
-    def get(self, request, id, last_chat_id):
+    def get(self, request, room_id, last_chat_id):
         user_id = request.user.id
 
-        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=id) & Q(Q(sender=user_id) | Q(receiver=user_id)) & Q(id__gt=last_chat_id)), many=True).data
+        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id)) & Q(id__gt=last_chat_id)), many=True).data
 
         data = {
             'chats': chats
