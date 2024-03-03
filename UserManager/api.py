@@ -8,6 +8,7 @@ from .models import *
 import random
 import datetime
 import pytz
+from .serializers import UserSerializer
 
 # class RegistrationAPI(APIView):
 #     authentication_classes = [JWTAuthentication]
@@ -147,7 +148,8 @@ class LoginOTPVerification(APIView):
                 refresh = RefreshToken.for_user(user_obj)
                 data = {
                     'refresh': str(refresh),
-                    'access': str(refresh.access_token)
+                    'access': str(refresh.access_token),
+                    'user': UserSerializer(user_obj, many=False).data
                 }
                 #delete OTP
             else:
