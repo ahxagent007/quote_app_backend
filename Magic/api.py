@@ -78,9 +78,21 @@ class ChatAPI(APIView):
     def get(self, request, room_id):
         user_id = request.user.id
 
-        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id))), many=True).data
+        chat_objs = chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id)))
+
+        try:
+            first_chat = chat_objs.first()
+            sender_id = first_chat.sender
+            receiver_id = first_chat.receiver
+        except:
+            sender_id = -1
+            receiver_id = -1
+
+        chats = ChatSerializer(chat_objs, many=True).data
         data = {
-            'chats': chats
+            'chats': chats,
+            'sender_id':sender_id,
+            'receiver_id': receiver_id
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -119,11 +131,21 @@ class ChatFastAPI(APIView):
 
     def get(self, request, room_id, last_chat_id):
         user_id = request.user.id
+        chat_objs = chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id)) & Q(id__gt=last_chat_id))
+        chats = ChatSerializer(chat_objs, many=True).data
 
-        chats = ChatSerializer(chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id)) & Q(id__gt=last_chat_id)), many=True).data
+        try:
+            first_chat = chat_objs.first()
+            sender_id = first_chat.sender
+            receiver_id = first_chat.receiver
+        except:
+            sender_id = -1
+            receiver_id = -1
 
         data = {
-            'chats': chats
+            'chats': chats,
+            'sender_id':sender_id,
+            'receiver_id': receiver_id
         }
 
         return Response(data, status=status.HTTP_200_OK)
