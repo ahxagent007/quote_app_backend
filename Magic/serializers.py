@@ -13,3 +13,9 @@ class VerficationSerializer(serializers.ModelSerializer):
     class Meta:
         model = verification
         fields = '__all__'
+
+class LastSeenSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = last_seen
+        fields = '__all__'

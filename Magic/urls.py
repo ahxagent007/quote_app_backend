@@ -12,6 +12,7 @@ urlpatterns = [
     path('chat/create/<str:room_id>', ChatAPI.as_view(), name='chat'),
     path('chat/list', ChatListAPI.as_view(), name='chat-list'),
     path('chat/start', ChartStart.as_view(), name='chat-start'),
-    path('chat/delete/<str:room_id>', DeleteChat.as_view(), name='chat-delete')
+    path('chat/delete/<str:room_id>', DeleteChat.as_view(), name='chat-delete'),
+    path('chat/last_seen', LastSeenAPI.as_view(), name='chat-last-seen'),
 
 ]

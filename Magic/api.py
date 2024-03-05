@@ -3,12 +3,14 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from .serializers import ChatSerializer, VerficationSerializer
-from .models import chat, verification
+from .models import chat, verification, last_seen
 import hashlib
 from django.db.models import Q
 from UserManager.models import user
 from UserManager.serializers import UserSerializer
 import time
+import datetime
+
 
 def current_milli_time():
     return round(time.time() * 1000)
@@ -124,7 +126,6 @@ class ChatAPI(APIView):
             'msg': 'Messages Deleted for both'
         }
         return Response(data, status=status.HTTP_200_OK)
-
 
 class ChatFastAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -244,3 +245,29 @@ class DeleteChat(APIView):
             data['msg'] = 'Not Deleted'
         return Response(data, status=status.HTTP_200_OK)
 
+class LastSeenAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        user_id = request.user.id
+
+        current_time = datetime.datetime.now()
+
+
+        try:
+            last_seen_obj = last_seen.objects.get(id=user_id)
+            last_seen_obj.last_time = current_time
+            last_seen_obj.save()
+            msg = 'Success'
+        except Exception as e:
+            msg = 'Last Seen Created'
+
+            last_seen_obj = last_seen.objects.create(user=user_id, last_time=current_time)
+
+
+        data = {
+            'msg': msg,
+            'last_seen_time': last_seen_obj.last_time
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
