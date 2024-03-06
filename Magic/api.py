@@ -103,8 +103,12 @@ class ChatAPI(APIView):
             last_seen_receiver = 'Not Available'
             print('last seen not found')
 
-
         chats = ChatSerializer(chat_objs, many=True).data
+
+        for c in chats:
+            c['created_time'] = datetime.datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
+
+
         data = {
             'chats': chats,
             'sender_id':sender_id,
@@ -144,6 +148,12 @@ class ChatAPI(APIView):
         }
         return Response(data, status=status.HTTP_200_OK)
 
+def convert_from_str(datetime_str):
+    datetime_str = time.mktime(datetime_str)
+    format = "%b %d %Y %r"
+    dateTime = time.strftime(format, time.gmtime(datetime_str))
+    return dateTime
+
 class ChatFastAPI(APIView):
     authentication_classes = [JWTAuthentication]
 
@@ -171,6 +181,10 @@ class ChatFastAPI(APIView):
         except:
             last_seen_receiver = 'Not Available'
             print('last seen not found')
+
+        for c in chats:
+            c['created_time'] = datetime.datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S.%f%z").strftime(
+                "%I:%M %p %d-%m-%Y")
 
         data = {
             'chats': chats,
