@@ -86,15 +86,32 @@ class ChatAPI(APIView):
             first_chat = chat_objs.first()
             sender_id = first_chat.sender
             receiver_id = first_chat.receiver
+
+
         except:
             sender_id = -1
             receiver_id = -1
+
+        try:
+            last_seen_sender = last_seen.objects.get(user__id = sender_id)
+        except:
+            last_seen_sender = 'Not Available'
+            print('last seen not found')
+        try:
+            last_seen_receiver = last_seen.objects.get(user__id = receiver_id)
+        except:
+            last_seen_receiver = 'Not Available'
+            print('last seen not found')
+
 
         chats = ChatSerializer(chat_objs, many=True).data
         data = {
             'chats': chats,
             'sender_id':sender_id,
-            'receiver_id': receiver_id
+            'receiver_id': receiver_id,
+            'last_seen_sender': last_seen_sender,
+            'last_seen_receiver': last_seen_receiver
+
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -143,10 +160,24 @@ class ChatFastAPI(APIView):
             sender_id = -1
             receiver_id = -1
 
+
+        try:
+            last_seen_sender = last_seen.objects.get(user__id = sender_id)
+        except:
+            last_seen_sender = 'Not Available'
+            print('last seen not found')
+        try:
+            last_seen_receiver = last_seen.objects.get(user__id = receiver_id)
+        except:
+            last_seen_receiver = 'Not Available'
+            print('last seen not found')
+
         data = {
             'chats': chats,
             'sender_id':sender_id,
-            'receiver_id': receiver_id
+            'receiver_id': receiver_id,
+            'last_seen_sender': last_seen_sender,
+            'last_seen_receiver': last_seen_receiver
         }
 
         return Response(data, status=status.HTTP_200_OK)
@@ -258,8 +289,8 @@ class LastSeenAPI(APIView):
             last_seen_obj = last_seen.objects.get(id=user_id)
             last_seen_obj.last_time = current_time
             last_seen_obj.save()
-            msg = 'Success'
-        except Exception as e:
+            msg = 'Last Seen Updated'
+        except:
             msg = 'Last Seen Created'
 
             last_seen_obj = last_seen.objects.create(user=user_id, last_time=current_time)
