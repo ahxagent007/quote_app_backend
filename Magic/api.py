@@ -283,19 +283,19 @@ class LastSeenAPI(APIView):
 
 
         try:
-            last_seen_obj = last_seen.objects.get(id=user_id)
+            last_seen_obj = last_seen.objects.get(user=user_id)
             last_seen_obj.last_time = current_time
             last_seen_obj.save()
             msg = 'Last Seen Updated'
-        except:
+        except Exception as e:
             msg = 'Last Seen Created'
-
             last_seen_obj = last_seen.objects.create(user=user_id, last_time=current_time)
 
 
         data = {
             'msg': msg,
-            'last_seen_time': last_seen_obj.last_time
+            'last_seen_time': datetime.datetime.strptime(str(last_seen_obj.last_time), "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
+
         }
 
         return Response(data, status=status.HTTP_200_OK)
