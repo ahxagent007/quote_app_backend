@@ -93,7 +93,7 @@ class ChatAPI(APIView):
 
         try:
             last_seen_str = last_seen.objects.get(user__id = last_seen_id)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
         except:
             last_seen_str = 'Not Available'
 
@@ -164,7 +164,7 @@ class ChatFastAPI(APIView):
 
         try:
             last_seen_str = last_seen.objects.get(user__id=last_seen_id)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
         except:
             last_seen_str = 'Not Available'
 
