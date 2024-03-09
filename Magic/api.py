@@ -84,24 +84,19 @@ class ChatAPI(APIView):
 
         try:
             first_chat = chat_objs.first()
-            sender_id = first_chat.sender
-            receiver_id = first_chat.receiver
-
-
+            if not first_chat.sender == user_id:
+                last_seen_id = first_chat.sender
+            else:
+                last_seen_id = first_chat.receiver
         except:
-            sender_id = -1
-            receiver_id = -1
+            last_seen_id = -1
 
         try:
-            last_seen_sender = last_seen.objects.get(user__id = sender_id)
+            last_seen_str = last_seen.objects.get(user__id = last_seen_id)
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
         except:
-            last_seen_sender = 'Not Available'
-            print('last seen not found')
-        try:
-            last_seen_receiver = last_seen.objects.get(user__id = receiver_id)
-        except:
-            last_seen_receiver = 'Not Available'
-            print('last seen not found')
+            last_seen_str = 'Not Available'
+
 
         chats = ChatSerializer(chat_objs, many=True).data
 
@@ -111,11 +106,7 @@ class ChatAPI(APIView):
 
         data = {
             'chats': chats,
-            'sender_id':sender_id,
-            'receiver_id': receiver_id,
-            'last_seen_sender': last_seen_sender,
-            'last_seen_receiver': last_seen_receiver
-
+            'last_seen': last_seen_str
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -164,23 +155,18 @@ class ChatFastAPI(APIView):
 
         try:
             first_chat = chat_objs.first()
-            sender_id = first_chat.sender
-            receiver_id = first_chat.receiver
+            if not first_chat.sender == user_id:
+                last_seen_id = first_chat.sender
+            else:
+                last_seen_id = first_chat.receiver
         except:
-            sender_id = -1
-            receiver_id = -1
-
+            last_seen_id = -1
 
         try:
-            last_seen_sender = last_seen.objects.get(user__id = sender_id)
+            last_seen_str = last_seen.objects.get(user__id=last_seen_id)
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
         except:
-            last_seen_sender = 'Not Available'
-            print('last seen not found')
-        try:
-            last_seen_receiver = last_seen.objects.get(user__id = receiver_id)
-        except:
-            last_seen_receiver = 'Not Available'
-            print('last seen not found')
+            last_seen_str = 'Not Available'
 
         for c in chats:
             c['created_time'] = datetime.datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S.%f%z").strftime(
@@ -188,10 +174,7 @@ class ChatFastAPI(APIView):
 
         data = {
             'chats': chats,
-            'sender_id':sender_id,
-            'receiver_id': receiver_id,
-            'last_seen_sender': last_seen_sender,
-            'last_seen_receiver': last_seen_receiver
+            'last_seen': last_seen_str
         }
 
         return Response(data, status=status.HTTP_200_OK)
