@@ -3,3 +3,4 @@ from .models import *
 
 admin.site.register(chat)
 admin.site.register(verification)
+admin.site.register(last_seen)
