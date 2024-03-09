@@ -2,18 +2,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
-from .serializers import ChatSerializer, VerficationSerializer
+from .serializers import ChatSerializer, VerficationSerializer, LastSeenSerializer
 from .models import chat, verification, last_seen
 import hashlib
 from django.db.models import Q
 from UserManager.models import user
 from UserManager.serializers import UserSerializer
-import time
-import datetime
+
+from functions.common import current_milli_time, \
+    format_convert_datetime_to_str
 
 
-def current_milli_time():
-    return round(time.time() * 1000)
 
 class VerificationAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -93,8 +92,8 @@ class ChatAPI(APIView):
             last_seen_id = -1
 
         try:
-            last_seen_str = str(last_seen.objects.get(user = last_seen_id).last_time)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
+            last_seen_obj = LastSeenSerializer(last_seen.objects.get(user = last_seen_id), many=False).data
+            last_seen_str = format_convert_datetime_to_str(last_seen_obj['last_time'])
         except Exception as e:
             print(str(e))
             last_seen_str = 'Not Available'
@@ -102,8 +101,7 @@ class ChatAPI(APIView):
         chats = ChatSerializer(chat_objs, many=True).data
 
         for c in chats:
-            c['created_time'] = datetime.datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
-
+            c['created_time'] = format_convert_datetime_to_str(c['created_time'])
 
         data = {
             'chats': chats,
@@ -140,11 +138,6 @@ class ChatAPI(APIView):
         }
         return Response(data, status=status.HTTP_200_OK)
 
-def convert_from_str(datetime_str):
-    datetime_str = time.mktime(datetime_str)
-    format = "%b %d %Y %r"
-    dateTime = time.strftime(format, time.gmtime(datetime_str))
-    return dateTime
 
 class ChatFastAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -164,16 +157,16 @@ class ChatFastAPI(APIView):
             last_seen_id = -1
 
         try:
-            last_seen_str = str(last_seen.objects.get(user=last_seen_id).last_time)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f%z").strftime(
-                "%I:%M %p %d-%m-%Y")
+            last_seen_obj = last_seen.objects.get(user=last_seen_id).last_time
+            last_seen_str = format_convert_datetime_to_str(last_seen_obj)
         except Exception as e:
             print(str(e))
             last_seen_str = 'Not Available'
 
+        chats = ChatSerializer(chat_objs, many=True).data
+
         for c in chats:
-            c['created_time'] = datetime.datetime.strptime(c['created_time'], "%Y-%m-%dT%H:%M:%S.%f%z").strftime(
-                "%I:%M %p %d-%m-%Y")
+            c['created_time'] = format_convert_datetime_to_str(c['created_time'])
 
         data = {
             'chats': chats,
@@ -282,23 +275,18 @@ class LastSeenAPI(APIView):
     def get(self, request):
         user_id = request.user.id
 
-        current_time = datetime.datetime.now()
-
-
         try:
             last_seen_obj = last_seen.objects.get(user=user_id)
-            last_seen_obj.last_time = current_time
             last_seen_obj.save()
             msg = 'Last Seen Updated'
         except Exception as e:
             msg = 'Last Seen Created'
-            last_seen_obj = last_seen.objects.create(user=user_id, last_time=current_time)
+            last_seen_obj = last_seen.objects.create(user=user_id)
 
 
         data = {
             'msg': msg,
-            'last_seen_time': datetime.datetime.strptime(str(last_seen_obj.last_time), "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
-
+            'last_seen_time': last_seen_obj.last_time
         }
 
         return Response(data, status=status.HTTP_200_OK)

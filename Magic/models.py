@@ -16,4 +16,4 @@ class verification(models.Model):
 class last_seen(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.IntegerField(null=False, unique=True)
-    last_time = models.DateTimeField(null=True)
+    last_time = models.DateTimeField(auto_now=True, null=True)
