@@ -80,6 +80,7 @@ class ChatAPI(APIView):
     def get(self, request, room_id):
         user_id = request.user.id
 
+
         chat_objs = chat.objects.filter(Q(chat_room_id=room_id) & Q(Q(sender=user_id) | Q(receiver=user_id)))
 
         try:
@@ -92,11 +93,11 @@ class ChatAPI(APIView):
             last_seen_id = -1
 
         try:
-            last_seen_str = last_seen.objects.get(user__id = last_seen_id)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
-        except:
+            last_seen_str = str(last_seen.objects.get(user = last_seen_id).last_time)
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f%z").strftime("%I:%M %p %d-%m-%Y")
+        except Exception as e:
+            print(str(e))
             last_seen_str = 'Not Available'
-
 
         chats = ChatSerializer(chat_objs, many=True).data
 
@@ -163,9 +164,11 @@ class ChatFastAPI(APIView):
             last_seen_id = -1
 
         try:
-            last_seen_str = last_seen.objects.get(user__id=last_seen_id)
-            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f").strftime("%I:%M %p %d-%m-%Y")
-        except:
+            last_seen_str = str(last_seen.objects.get(user=last_seen_id).last_time)
+            last_seen_str = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S.%f%z").strftime(
+                "%I:%M %p %d-%m-%Y")
+        except Exception as e:
+            print(str(e))
             last_seen_str = 'Not Available'
 
         for c in chats:
