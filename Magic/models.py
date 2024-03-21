@@ -1,5 +1,12 @@
 from django.db import models
 
+class image(models.Model):
+    id = models.AutoField(primary_key=True)
+    image_path = models.CharField(max_length=255, null=False)
+    sender_id = models.IntegerField(null=False)
+    created_date = models.DateTimeField(auto_now_add=True)
+
+
 class chat(models.Model):
     id = models.AutoField(primary_key=True)
     message = models.TextField()
@@ -7,6 +14,8 @@ class chat(models.Model):
     receiver = models.IntegerField(null=False)
     created_time = models.DateTimeField(auto_now_add=True)
     chat_room_id = models.CharField(null=False, max_length=255)
+    images = models.ManyToManyField(image)
+
 
 class verification(models.Model):
     id = models.AutoField(primary_key=True)

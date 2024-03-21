@@ -14,5 +14,6 @@ urlpatterns = [
     path('chat/start', ChartStart.as_view(), name='chat-start'),
     path('chat/delete/<str:room_id>', DeleteChat.as_view(), name='chat-delete'),
     path('chat/last_seen', LastSeenAPI.as_view(), name='chat-last-seen'),
+    path('chat/image', ChatImageAPI.as_view(), name='chat-image'),
 
 ]

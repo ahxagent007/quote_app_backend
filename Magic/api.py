@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from .serializers import ChatSerializer, VerficationSerializer, LastSeenSerializer
-from .models import chat, verification, last_seen
+from .models import chat, verification, last_seen, image
 import hashlib
 from django.db.models import Q
 from UserManager.models import user
@@ -11,7 +11,7 @@ from UserManager.serializers import UserSerializer
 
 from functions.common import current_milli_time, \
     format_convert_datetime_to_str
-
+from django.core.files.storage import FileSystemStorage
 
 
 class VerificationAPI(APIView):
@@ -137,7 +137,6 @@ class ChatAPI(APIView):
             'msg': 'Messages Deleted for both'
         }
         return Response(data, status=status.HTTP_200_OK)
-
 
 class ChatFastAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -290,3 +289,54 @@ class LastSeenAPI(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+class ChatImageAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+
+        '''
+        {
+            "chat_room_id": 1,
+            "receiver": 2
+        }
+        '''
+
+
+        json_data = request.data
+        user_id = request.user.id
+
+        chat_obj = chat.objects.create(message='#IMAGE', sender=user_id,
+                                       receiver=json_data['receiver'], chat_room_id=json_data['chat_room_id'])
+        errors = []
+        i = 0
+        for image_file in request.FILES:
+            try:
+                image_file = request.FILES['images_' + str(i)]
+                fs = FileSystemStorage()
+
+                file_exct = str(image_file.name).split('.')[1]
+                file_name = md5_hash(str(current_milli_time()))
+
+                saved_file = fs.save('CHAT/' + str(user_id) + '/' + file_name + '.' + file_exct, image_file)
+
+                uploaded_file_url = fs.url(saved_file)
+
+                image_obj = image.objects.create(image_path=uploaded_file_url,
+                                                 sender_id=user_id)
+
+                i += 1
+                chat_obj.iages.add(image_obj)
+            except Exception as e:
+                print("Image not found")
+                error = str(e)
+                errors.append(error)
+
+        chat_obj.save()
+        data = {
+            'chat': ChatSerializer(chat_obj, many=False).data,
+            'errors': errors
+        }
+        return Response(data=data, status=status.HTTP_200_OK)
