@@ -9,6 +9,7 @@ import random
 import datetime
 import pytz
 from .serializers import UserSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # class RegistrationAPI(APIView):
 #     authentication_classes = [JWTAuthentication]
@@ -166,3 +167,19 @@ class LoginOTPVerification(APIView):
             }
 
         return Response(data, status=status.HTTP_200_OK)
+
+class AccountDeleteAPI():
+
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request):
+        user_id = request.user.id
+
+        try:
+            user_obj = user.objects.get(id=user_id)
+            user_obj.delete()
+            msg = 'User Deleted'
+        except Exception as e:
+            msg = str(e)
+
+        return Response(data={'msg':msg}, status=status.HTTP_200_OK)

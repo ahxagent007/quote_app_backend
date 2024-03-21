@@ -5,4 +5,6 @@ from .api import *
 urlpatterns = [
     path('login/otp', LoginOTP.as_view(), name='login-otp'),
     path('login/otp/verification', LoginOTPVerification.as_view(), name='login-otp-verification'),
+
+    path('account/delete', AccountDeleteAPI.as_view(), name='account-delete')
 ]
