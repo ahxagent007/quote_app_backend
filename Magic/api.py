@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from .serializers import ChatSerializer, VerficationSerializer, LastSeenSerializer
-from .models import chat, verification, last_seen, image
+from .models import chat, verification, last_seen, image, report
 import hashlib
 from django.db.models import Q
 from UserManager.models import user
@@ -290,8 +290,6 @@ class LastSeenAPI(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-
-
 class ChatImageAPI(APIView):
     authentication_classes = [JWTAuthentication]
 
@@ -340,3 +338,19 @@ class ChatImageAPI(APIView):
             'errors': errors
         }
         return Response(data=data, status=status.HTTP_200_OK)
+
+class AppReport(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+
+        '''
+        {
+            "report_message": "asd asd asd a"
+        }
+        '''
+
+        report_obj = report.objects.create(report_message=request.data['report_message'],
+                                           user = request.user.id)
+
+        return Response(data={'msg':'Report created'}, status=status.HTTP_200_OK)

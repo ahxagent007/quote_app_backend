@@ -26,3 +26,9 @@ class last_seen(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.IntegerField(null=False, unique=True)
     last_time = models.DateTimeField(auto_now=True, null=True)
+
+class report(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.IntegerField(null=False, unique=True)
+    report_message = models.CharField(max_length=1000)
+    created_date = models.DateTimeField(auto_now=True, null=True)

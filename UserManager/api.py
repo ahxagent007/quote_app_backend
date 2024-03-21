@@ -168,7 +168,7 @@ class LoginOTPVerification(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-class AccountDeleteAPI():
+class AccountDeleteAPI(APIView):
 
     authentication_classes = [JWTAuthentication]
 
