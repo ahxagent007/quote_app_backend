@@ -14,7 +14,7 @@ class chat(models.Model):
     receiver = models.IntegerField(null=False)
     created_time = models.DateTimeField(auto_now_add=True)
     chat_room_id = models.CharField(null=False, max_length=255)
-    images = models.ManyToManyField(image)
+    images = models.ManyToManyField(image, null=True)
 
 
 class verification(models.Model):
