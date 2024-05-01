@@ -8,7 +8,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ChatSerializer(serializers.ModelSerializer):
-    images = ImageSerializer(many=True)
+    #images = ImageSerializer(many=True)
     class Meta:
         model = chat
         fields = '__all__'
